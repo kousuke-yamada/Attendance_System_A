@@ -18,6 +18,7 @@
 </div>
 <div class="btn-users-show">
   <%= link_to "⇦前月へ", user_path(date: @first_day.prev_month), class: "btn btn-info" %>
+  <%= link_to "１ヶ月の勤怠編集へ", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-success" %>
   <%= link_to "次月へ⇨", user_path(date: @first_day.next_month), class: "btn btn-info" %>
 </div>
 
@@ -52,7 +53,7 @@
               <% @total_working_times = @total_working_times.to_f + str_times.to_f %>
             <% end %>
           </td>
-          <td></td>
+          <td><%= day.note %></td>
         </tr>
       <% end %>
     </tbody>
