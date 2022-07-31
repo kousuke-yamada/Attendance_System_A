@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '2.6.9' # 追記
+
 gem 'rails',        '~> 5.1.6'
 gem 'rails-i18n'
 gem 'bcrypt'
