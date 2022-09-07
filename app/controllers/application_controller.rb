@@ -6,9 +6,19 @@ class ApplicationController < ActionController::Base
   
   # beforeフィルター
   
-  # paramsハッシュからユーザーを取得します。
+  # paramsハッシュ(:id)からユーザーを取得します。
   def set_user
-    @user = User.find(params[:id])
+    begin
+      @user = User.find(params[:id])
+    rescue
+      flash[:danger] = "不正なアクセスです。"
+      redirect_to root_url
+    end
+  end
+  
+  # paramsハッシュ(:user_id)からユーザーを取得します。
+  def set_user_by_user_id
+    @user = User.find(params[:user_id])
   end
   
   def logged_in_user
@@ -21,12 +31,26 @@ class ApplicationController < ActionController::Base
   
   # アクセスしたユーザーが現在ログインしているユーザーか確認します。
   def correct_user
-    redirect_to(root_url) unless current_user?(@user)
+    unless current_user?(@user)
+      flash[:danger] = "不正なユーザーです。"
+      redirect_to(root_url) 
+    end
   end
   
   # システム管理権限所有かどうか判定します。
   def admin_user
-    redirect_to root_url unless current_user.admin?
+    unless current_user.admin?
+      flash[:danger] = "管理者権限がありません"
+      redirect_to root_url
+    end
+  end
+  
+  # 管理権限者、または、現在ログインしているユーザーを許可します。
+  def admin_or_correct_user
+    unless current_user?(@user) || current_user.admin?
+      flash[:danger] = "アクセス権限がありません"
+      redirect_to(root_url)
+    end
   end
   
   # ページ出力前に1ヶ月分のデータの存在を確認・セットします。

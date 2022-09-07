@@ -1,5 +1,5 @@
 module AttendancesHelper
-  
+
   def attendance_state(attendance)
     # 受け取ったAttendanceオブジェクトが当日と一致するか評価します。
     if Date.current == attendance.worked_on
@@ -14,4 +14,23 @@ module AttendancesHelper
   def working_times(start, finish)
     format("%.2f", (((finish - start)/ 60)/60.0) )
   end
+  
+  # 対応する曜日のcssクラスを割り当てる
+  def set_color_of_day_of_week(day_num)
+    case $days_of_the_week[day_num]
+    when "土" then
+      "sat_day"
+    when "日" then
+      "sun_day"
+    else
+      "week_day"
+    end
+  end
+  
+  # 時間表示を15分単位にする
+  def calc_round_time(t)
+    rounded_t = Time.local(t.year, t.month, t.day, t.hour, t.min/15*15)
+    return rounded_t
+  end
+  
 end

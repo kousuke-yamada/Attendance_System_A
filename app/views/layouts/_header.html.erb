@@ -1,18 +1,21 @@
 <header class="navbar navbar-fixed-top navbar-inverse">
   <div class="container">
-    <%= link_to "Attendance App", root_path, id: "logo" %>
+    <%= link_to "勤怠システム", root_path, id: "logo" %>
     <nav>
       <ul class="nav navbar-nav navbar-right">
-        <li><%= link_to "ホーム", root_path %></li>
+        <li><%= link_to "トップへ", root_path %></li>
         <% if logged_in? %>
-          <li><%= link_to "全てのユーザー", users_path %></li>
+          <% if admin_user? %>
+            <li><%= link_to "ユーザー一覧", users_path %></li>
+            <li><%= link_to "基本情報の修正", edit_basic_info_user_path(current_user) %></li>
+          <% end %>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              メニュー <b class="caret"></b>
+              アカウント <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
               <li><%= link_to "勤怠", current_user %></li>
-              <li><%= link_to "設定", edit_user_path(current_user) %></li>
+              <li><%= link_to "個人情報編集", edit_user_path(current_user) %></li>
               <li class="divider"></li>
               <li>
                 <%= link_to "ログアウト", logout_path, method: :delete %>

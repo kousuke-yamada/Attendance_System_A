@@ -58,4 +58,9 @@ module SessionsHelper
   def store_location
     session[:forwording_url] = request.original_url if request.get?
   end
+  
+  # 現在ログイン中のユーザーがシステム管理権限所有かどうか判定します。
+  def admin_user?
+    current_user.admin?
+  end
 end

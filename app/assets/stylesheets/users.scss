@@ -21,6 +21,28 @@
     vertical-align: middle;
     text-align: center;
   }
+  .attendances_date_header {
+    width: 10% ;
+  }
+  .attendances_time_header {
+    width: 5% ;
+  }
+  .attendances_btn_header {
+    width: 10% ;
+  }
+  .attendances_worktime_header {
+    width: 10% ;
+  }
+  /* 曜日 */
+  .sat_day {
+    color: #0000ff;
+  }
+  .sun_day {
+    color: #ff0000;
+  }
+  .week_day {
+    color: #000000;
+  }
 }
 
 /* 入力フォーム */
@@ -57,4 +79,17 @@
 .btn-basic-info {
   margin: 15px 0;
   width: 30%;
+}
+
+/* 検索フォーム */
+.serach-lable {
+  text-align: right;
+}
+
+/* 勤怠基本情報ヘッダ部 */
+.basic_info_header {
+  vertical-align: middle;
+}
+#abasic_info_header {
+  vertical-align: middle;
 }
