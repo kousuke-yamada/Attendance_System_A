@@ -61,7 +61,7 @@ class UsersController < ApplicationController
   
   def search
     if params[:name].present?
-      @users = User.where('name LIKE ?', "%#{params[:name]}%").page(params[:page]).per_page(3)
+      @users = User.where('name LIKE ?', "%#{params[:name]}%").page(params[:page]).per_page(20)
     else
       @users = User.paginate(page: params[:page])
     end
