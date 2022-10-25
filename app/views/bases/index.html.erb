@@ -1,0 +1,38 @@
+<% provide(:title, 'Base Info') %>
+ 
+<div>
+  <h1>拠点一覧</h1>
+  <table class="table table-bordered table-condensed table-hover" id="table-bases">
+    <thead>
+      <tr>
+        <% unless @bases.empty? %>
+          <th></th>
+          <th></th>
+        <% end %>
+        <th>拠点番号</th>
+        <th>拠点名</th>
+        <th>拠点種類</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bases.each do |base| %>
+        <tr>
+          <td><%= link_to "修正", edit_basis_path(base), class: "btn btn-primary" %></td>
+          <td><%= link_to "削除", basis_path(base), method: :delete,
+                    data: {confirm: "削除してよろしいですか？"},
+                    class: "btn btn-primary" %>
+          </td>
+          <td><%= base.baseno %></td>
+          <td><%= base.basename %></td>
+          <td><%= base.basekind %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <%= link_to "拠点情報追加", new_basis_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+</div>

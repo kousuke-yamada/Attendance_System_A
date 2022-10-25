@@ -13,6 +13,7 @@ class User < ApplicationRecord
   validates :department, length: {in: 2..30}, allow_blank: true
   validates :basic_time, presence: true
   validates :work_time, presence: true
+  validates :work_end_time, presence: true
   has_secure_password
   validates :password, presence: true, length: {minimum: 6}, allow_nil:true
   
@@ -50,4 +51,35 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, nil)
   end
   
+  # importメソッド
+  def self.import(file)
+    errors = ""
+    ActiveRecord::Base.transaction do  # トランザクションを開始します。
+      CSV.foreach(file.path, headers: true).with_index(1) do |row,line|
+          
+        # IDが見つかれば、レコードを呼び出し、見つからなければ新しく作成
+        user = User.find_by(id: row[:id]) || User.new
+        $line_no = line
+
+        # CSVからデータを取得し、設定する
+        user.attributes = row.to_hash.slice(*updatable_attributes)
+        if !user.save
+          errors = " 【エラー】csvファイル #{line}行目 : "
+          user.errors.full_messages.each do |msg|
+            errors += msg
+          end 
+        end
+
+        raise ActiveRecord::Rollback if errors.present?
+      end
+    end
+    
+    return errors.presence || nil
+  end
+  
+  # 更新を許可するカラムを定義
+  def self.updatable_attributes
+    ["name", "email", "department", "employee_number", "uid", "basic_time", "work_time", "work_end_time", "superior", "admin", "password"]
+  end
+
 end

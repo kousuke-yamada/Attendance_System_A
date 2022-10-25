@@ -10,6 +10,9 @@
   margin-top: -10px;
   margin-bottom: 10px;
 }
+.btn-check-log {
+  margin-top: 3px;
+}
 
 /* ユーザー勤怠情報テーブル */
 #table-attendances{
@@ -87,9 +90,12 @@
 }
 
 /* 勤怠基本情報ヘッダ部 */
-.basic_info_header {
-  vertical-align: middle;
+table.user-table tr td.basic_info_header {
+  vertical-align: bottom;
 }
-#abasic_info_header {
-  vertical-align: middle;
+/* 出勤中社員一覧テーブル */
+#table-attendance_at_work {
+  th,td {
+    text-align: center;
+  }  
 }

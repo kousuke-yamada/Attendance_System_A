@@ -1,0 +1,40 @@
+<% provide(:title, 'attendance log') %>
+<h1>勤怠ログ</h1>
+
+<div>
+  <table class="table table-bordered table-condensed table-hover" id="table-attendances">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>変更前出社時間</th>
+        <th>変更前退社時間</th>
+        <th>変更後出社</th>
+        <th>変更後退社</th>
+        <th>指示者</th>
+        <th>承認日</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @attendances.each do |attendance| %>
+        <% if attendance.approval_date.present? %>
+          <tr>
+            <!-- 日付 -->
+            <td><%= attendance.worked_on %></td>
+            <!-- 変更前出社時間 -->
+            <td><%= attendance.first_started_at %></td>
+            <!-- 変更前退社時間 -->
+            <td><%= attendance.first_finished_at %></td>
+            <!-- 変更後出社時間 -->
+            <td><%= attendance.chg_started_at %></td>
+            <!-- 変更後退社時間 -->
+            <td><%= attendance.chg_finished_at %></td>
+            <!-- 指示者 -->
+            <td><%= attendance.instructor %></td>
+            <!-- 承認日 -->
+            <td><%= attendance.approval_date %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

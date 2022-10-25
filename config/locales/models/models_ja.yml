@@ -3,21 +3,31 @@ ja:
     models:
       user: ユーザー
       attendance: 勤怠
+      base: 拠点
     attributes:
         user:
           id: ID
           name: 名前
           email: メールアドレス
           department: 所属
-          basic_time: 基本時間
-          work_time: 勤務時間
+          employee_number: 社員番号
+          uid: カードID
+          basic_time: 基本勤務時間
+          work_time: 指定勤務開始時間
+          work_end_time: 指定勤務終了時間
           password: パスワード
           password_confirmation: パスワード再入力
           created_at: 作成日
           updated_at: 更新日
+          admin: 管理者権限
+          superior: 上長権限
         attendance:
           worked_on: 日付
           started_at: 出勤時間
           finished_at: 退勤時間
           note: 備考
           user: ユーザーID
+        base:
+          baseno: 拠点番号
+          basename: 拠点名
+          basekind: 拠点種類

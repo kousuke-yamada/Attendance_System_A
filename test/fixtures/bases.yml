@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  baseno: 1
+  basename: MyString
+  basekind: MyString
+
+two:
+  baseno: 1
+  basename: MyString
+  basekind: MyString

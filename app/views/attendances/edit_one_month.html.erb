@@ -9,8 +9,10 @@
         <th>曜日</th>
         <th>出勤時間</th>
         <th>退勤時間</th>
+        <th>翌日</th>
         <th>在社時間</th>
         <th>備考</th>
+        <th>指示者確認㊞</th>
       </tr>
     </thead>
     <tbody>
@@ -18,7 +20,9 @@
         <%= f.fields_for "attendances[]", day do |attendance| %>
           <tr>
             <td><%= l(day.worked_on, format: :short) %></td>
-            <td><%= $days_of_the_week[day.worked_on.wday] %></td>
+            <td class = "<%= set_color_of_day_of_week(day.worked_on.wday) %>">
+              <%= $days_of_the_week[day.worked_on.wday] %>
+            </td>
             <% if Date.current < day.worked_on %>
               <td><%= attendance.time_field :started_at, readonly: true, class: "form-control" %></td>
               <td><%= attendance.time_field :finished_at, readonly: true, class: "form-control" %></td>
@@ -26,12 +30,14 @@
               <td><%= attendance.time_field :started_at, class: "form-control" %></td>
               <td><%= attendance.time_field :finished_at, class: "form-control" %></td>
             <% end %>
+            <td><%= check_box_tag(:attendance_nextday) %></td>
             <td>
               <% if day.started_at.present? && day.finished_at.present? %>
                 <%= working_times(day.started_at, day.finished_at) %>
               <% end %>
             </td>
             <td><%= attendance.text_field :note, class: "form-control" %></td>
+            <td><%= attendance.select :instructor, [["上長A", "上長A"], ["上長B", "上長B"]], include_blank: "選択して下さい" %></td>
           </tr>
         <% end %>
       <% end %>

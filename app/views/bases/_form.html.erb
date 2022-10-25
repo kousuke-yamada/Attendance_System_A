@@ -1,0 +1,15 @@
+<%= form_with(model: base, local: true) do |f| %>
+  <%= render 'shared/error_messages', object: base %>
+
+  <!-- 拠点番号 -->
+  <%= f.label :baseno, class: "base_label" %>
+  <%= f.text_field :baseno, class: "form-control" %>
+  <!-- 拠点名 -->
+  <%= f.label :basename, class: "base_label" %>
+  <%= f.text_field :basename, class: "form-control" %>
+  <!-- 拠点種類 -->
+  <%= f.label :basekind, class: "base_label" %>
+  <%= f.text_field :basekind, class: "form-control" %>
+
+  <%= f.submit yield(:button_text), class: "btn btn-primary btn-block btn-base-info" %>
+<% end %>

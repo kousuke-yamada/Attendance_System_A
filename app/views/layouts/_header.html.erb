@@ -7,6 +7,8 @@
         <% if logged_in? %>
           <% if admin_user? %>
             <li><%= link_to "ユーザー一覧", users_path %></li>
+            <li><%= link_to "出勤社員一覧", attendance_at_work_users_path %></li>
+            <li><%= link_to "拠点情報の修正", bases_path %></li>
             <li><%= link_to "基本情報の修正", edit_basic_info_user_path(current_user) %></li>
           <% end %>
           <li class="dropdown">

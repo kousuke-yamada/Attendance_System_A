@@ -1,5 +1,6 @@
 class Attendance < ApplicationRecord
   belongs_to :user
+  has_one :attendance_log
   
   validates :worked_on, presence: true
   validates :note, length: {maximum: 50}

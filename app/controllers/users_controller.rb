@@ -67,11 +67,33 @@ class UsersController < ApplicationController
     end
    
   end
+
+  def csv_import
+    if params[:file].present?
+      error = User.import(params[:file])
+      
+      # インポート失敗時の処理
+      if error.presence
+        flash[:danger] = "csvインポート失敗しました。#{error}"
+      else
+        flash[:success] = "csvインポート成功しました。"
+      end
+    else
+      # ファイル未選択
+      flash[:danger] = "csvファイルを選択してください。"
+    end
+
+    redirect_to users_url
+  end
+
+  def attendance_at_work
+    @users = User.joins(:attendances).where(attendances: {worked_on: Date.today, finished_at: nil}).where.not(attendances: {started_at: nil})
+  end
   
   private
   
     def user_params
-      params.require(:user).permit(:name, :email,:department, :password, :password_confirmaiton)
+      params.require(:user).permit(:name, :email, :department, :employee_number, :uid, :basic_time, :work_time, :work_end_time, :password, :password_confirmaiton)
     end
     
     def basic_info_params
