@@ -1,10 +1,10 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info, :confirm_attendance]
   before_action :logged_in_user, only: [:index,:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
   before_action :correct_user, only: [:edit, :update]
   before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info]
   before_action :admin_or_correct_user, only: :show
-  before_action :set_one_month, only: :show
+  before_action :set_one_month, only: [:show, :confirm_attendance]
 
   def index
     @users = User.paginate(page: params[:page])
@@ -12,6 +12,9 @@ class UsersController < ApplicationController
 
   def show
     @worked_sum = @attendances.where.not(started_at: nil, finished_at: nil).count
+
+    # 勤怠変更申請件数の取得
+    @attendance_chg_req_sum = User.joins(:attendances).where(attendances: {approval_status: "申請中", instructor: @user.name}).count
   end
   
   def new
@@ -88,6 +91,10 @@ class UsersController < ApplicationController
 
   def attendance_at_work
     @users = User.joins(:attendances).where(attendances: {worked_on: Date.today, finished_at: nil}).where.not(attendances: {started_at: nil})
+  end
+
+  def confirm_attendance
+    @worked_sum = @attendances.where.not(started_at: nil, finished_at: nil).count
   end
   
   private

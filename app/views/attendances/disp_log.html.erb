@@ -21,13 +21,25 @@
             <!-- 日付 -->
             <td><%= attendance.worked_on %></td>
             <!-- 変更前出社時間 -->
-            <td><%= attendance.first_started_at %></td>
+            <td>
+              <% if attendance.first_started_at.present? %>
+                <%= attendance.first_started_at %>
+              <% else %>
+                （未登録）
+              <% end %>
+            </td>
             <!-- 変更前退社時間 -->
-            <td><%= attendance.first_finished_at %></td>
+            <td>
+              <% if attendance.first_finished_at.present? %>
+                <%= attendance.first_finished_at %>
+              <% else %>
+                （未登録）
+              <% end %>              
+            </td>
             <!-- 変更後出社時間 -->
-            <td><%= attendance.chg_started_at %></td>
+            <td><%= l(calc_round_time(attendance.started_at), format: :time) %></td>
             <!-- 変更後退社時間 -->
-            <td><%= attendance.chg_finished_at %></td>
+            <td><%= l(calc_round_time(attendance.finished_at), format: :time) %></td>
             <!-- 指示者 -->
             <td><%= attendance.instructor %></td>
             <!-- 承認日 -->

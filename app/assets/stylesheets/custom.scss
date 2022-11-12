@@ -120,3 +120,28 @@ p {
 .modal-dialog-center {
   padding-top: 10%;
 }
+
+.modal-title {
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.modal-header {
+  padding: 5px;
+  border-style: none;
+}
+
+.modal-body {
+  th,td {
+    text-align: center;
+  }
+}
+
+.attendance-table-note {
+  width: 30%;
+}
+
+.attendance_month_apply {
+  width: 100%;
+  margin-bottom: 5px;
+}

@@ -1,10 +1,23 @@
 # coding: utf-8
 
-User.create(name: "Sample User",
-            email: "sample@email.com",
+# 管理者
+User.create(name: "Admin User",
+            email: "admin@email.com",
             password: "password",
             password_confirmation: "password",
             admin: true)
+# 上長A
+User.create(name: "上長A",
+            email: "super-1@email.com",
+            password: "password",
+            password_confirmation: "password",
+            superior: true)
+# 上長B            
+User.create(name: "上長B",
+            email: "super-2@email.com",
+            password: "password",
+            password_confirmation: "password",
+            superior: true)
             
 60.times do |n|
   name = Faker::Name.name

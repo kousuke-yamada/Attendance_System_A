@@ -33,4 +33,10 @@ module AttendancesHelper
     return rounded_t
   end
   
+  # 勤怠変更申請中の日付を取得
+  def get_attendance_chg_date(user_id, instructor)
+    attendances = Attendance.where(user_id: user_id, approval_status: "申請中", instructor: instructor)
+    return attendances
+  end
+
 end

@@ -1,0 +1,104 @@
+<% provide(:class_text, 'basic-info') %>
+<% provide(:button_text, '更新') %>
+
+<div class="modal-dialog modal-lg modal-dialog-center">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+      <!-- <h1 class="modal-title">勤怠変更申請</h1> -->
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <%= form_with(model: @user, url: attendances_update_attendance_chg_req_user_path(date: @first_day), local: true, method: :patch) do |f| %>
+            <% @applicants.each do |applicant| %>
+              <!-- 表題：申請者の名前 -->
+              <div class="modal-title">
+                【<%= applicant.name %>からの勤怠変更申請】
+              </div>
+              
+              <!-- テーブル：勤怠変更情報 -->
+              <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th rowspan ='3'>日付</th>
+                    <th rowspan ='3'>曜日</th>
+                    <th colspan ='4'>変更前</th>
+                    <th colspan ='4'>変更後</th>
+                    <th rowspan ='3'>備考</th>
+                    <th rowspan ='3'>指示者確認㊞</th>
+                    <th rowspan ='3'>変更</th>
+                    <th rowspan ='3'>勤怠を確認する</th>
+                  </tr>
+                  <tr>
+                    <th colspan ='2'>出社</th>
+                    <th colspan ='2'>退社</th>
+                    <th colspan ='2'>出社</th>
+                    <th colspan ='2'>退社</th>
+                  </tr>
+                  <tr>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                    <th>時</th>
+                    <th>分</th>
+                  </tr>
+                </thead>
+                <tbody>                
+                  <% attendances = get_attendance_chg_date(applicant.id, @user.name) %>
+                  <% attendances.each do |day| %>
+                    <%= f.fields_for "attendances[]", day do |attendance| %>
+                      <tr>
+                        <!-- 日付 -->
+                        <td><%= l(day.worked_on, format: :short) %></td>
+                        <!-- 曜日 -->
+                        <td><%= $days_of_the_week[day.worked_on.wday] %></td>
+                        <!-- 変更前　出社　時 -->
+                        <td><%= day.started_at.present? ? l(day.started_at, format: :hour) : "--" %></td>
+                        <!-- 変更前　出社　分 -->
+                        <td><%= day.started_at.present? ? l(day.started_at, format: :min) : "--" %></td>
+                        <!-- 変更前  退社　時 -->
+                        <td><%= day.finished_at.present? ? l(day.finished_at, format: :hour) : "--" %></td>
+                        <!-- 変更前　退社　分 -->
+                        <td><%= day.finished_at.present? ? l(day.finished_at, format: :min) : "--" %></td>
+                        <!-- 変更後　出社　時 -->
+                        <td><%= l(day.chg_started_at, format: :hour) if day.chg_started_at.present? %></td>
+                        <!-- 変更後　出社　分 -->
+                        <td><%= l(day.chg_started_at, format: :min) if day.chg_started_at.present? %></td>
+                        <!-- 変更後　退社　時 -->
+                        <td><%= l(day.chg_finished_at, format: :hour) if day.chg_finished_at.present? %></td>
+                        <!-- 変更後　退社　分 -->
+                        <td><%= l(day.chg_finished_at, format: :min) if day.chg_finished_at.present? %></td>
+                        <!-- 備考 -->
+                        <td class="attendance-table-note"><%= day.note %></td>
+                        <!-- 指示者確認印(プルダウン) -->
+                        <td><%= attendance.select :approval_status, [["なし", "なし"],["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], {selected: day.approval_status} %></td>
+                        <!-- 変更(チェックボックス) -->
+                        <td><%= attendance.check_box :chg_permission %></td>
+                        <!-- 勤怠を確認する -->
+                        <td><%= link_to "確認", confirm_attendance_user_path(applicant, date: day.worked_on.beginning_of_month), class: "btn btn-primary" %></td>
+                        
+                        <!-- 申請者のidを渡す -->
+                        <%= attendance.hidden_field :user_id, :value => applicant.id %>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>              
+            <% end %>
+
+            <div class="center">
+              <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

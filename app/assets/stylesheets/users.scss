@@ -25,17 +25,24 @@
     text-align: center;
   }
   .attendances_date_header {
-    width: 10% ;
+    width: 4% ;
   }
   .attendances_time_header {
-    width: 5% ;
+    width: 4% ;
   }
   .attendances_btn_header {
-    width: 10% ;
+    width: 8% ;
   }
   .attendances_worktime_header {
-    width: 10% ;
+    width: 4% ;
   }
+  .attendances_note_header {
+    width: 20% ;
+  }
+  .attendances_note_body {
+    text-align: left;
+  }
+
   /* 曜日 */
   .sat_day {
     color: #0000ff;
@@ -98,4 +105,11 @@ table.user-table tr td.basic_info_header {
   th,td {
     text-align: center;
   }  
+}
+
+/* 申請通知 */
+.attendance_chg_req_info {
+  color:#ff0000;
+  font-weight: bold;
+  border: solid 2px #ff0000;
 }

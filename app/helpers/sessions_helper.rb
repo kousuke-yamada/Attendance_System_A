@@ -63,4 +63,11 @@ module SessionsHelper
   def admin_user?
     current_user.admin?
   end
+
+  # 現在ログイン中のユーザーが上長権限所有者かどうか判定します。
+  def superior_user?
+    current_user.superior?
+  end
 end
+
+

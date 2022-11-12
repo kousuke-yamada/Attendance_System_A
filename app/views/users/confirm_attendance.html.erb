@@ -3,9 +3,7 @@
   <table class="table table-bordered table-condensed user-table">
     <tr>
       <td class="basic_info_header">
-        <%= link_to "◀︎", user_path(date: @first_day.prev_month), class: "btn btn-primary" %>
         <%= l(@first_day, format: :middle) %>  時間管理表
-        <%= link_to "▶︎", user_path(date: @first_day.next_month), class: "btn btn-primary" %>
       </td>
       <td class="basic_info_header">
         指定勤務開始時間：<%= format_basic_info(@user.work_time) %> <br>
@@ -26,35 +24,9 @@
   </table>
 </div>
 
-<!-- 上長権限者のみ(※申請確認の通知) -->
-<% if superior_user? %>
-  <p>
-    <!-- 所属長承認申請-->
-    <!-- <%= link_to "【所属長承認申請のお知らせ】", '#', class: "" %> </br> -->
-    <span>【所属長承認申請のお知らせ】</span> </br>
-
-    <!-- 勤怠変更申請-->
-    <% if @attendance_chg_req_sum > 0 %>
-      <%= link_to "【勤怠変更申請のお知らせ】", attendances_attendance_chg_req_user_path, remote: true,class: "" %> 
-      <span class="attendance_chg_req_info"><%= @attendance_chg_req_sum %>件の通知があります</span></br>
-    <% else %>
-      <span>【勤怠変更申請のお知らせ】</span> </br>
-    <% end %>
-
-    <!-- 残業申請-->
-    <!-- <%= link_to "【残業申請のお知らせ】", '#', class: "" %> -->
-    <span>【残業申請のお知らせ】</span>
-  </p>
-<% end %>
-
-<div class="btn-users-show">
-  <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
-  <%= link_to "CSV出力", '#', class: "btn btn-primary" %> <br>
-  <%= link_to "勤怠修正ログ（承認済）", attendances_disp_log_user_path(date: @first_day), class: "btn btn-primary btn-check-log" %>
-</div>
 
 <div>
-  <table class="table table-bordered table-condensed table-hover table-striped"   id="table-attendances">
+  <table class="table table-bordered table-condensed table-hover"   id="table-attendances">
     <thead>
       <tr>
         <th rowspan = 3 class="attendances_date_header">残業申請</th>
@@ -88,7 +60,7 @@
       <% @attendances.each do |day| %>
         <tr>
           <!--残業申請ボタン-->
-          <td><%= link_to "残業申請", '#', class: "btn btn-primary" %></td>
+          <td></td>
           <!--日付-->
           <td><%= l(day.worked_on, format: :short) %></td>
           <!--曜日-->
@@ -104,12 +76,7 @@
             <%= l(calc_round_time(day.started_at), format: :min) if day.started_at.present? %>
           </td>
           <!--出社 勤怠登録ボタン-->
-          <td>
-            <% btn_text = attendance_state(day) %>
-            <% if btn_text == "出勤" %>
-              <%= link_to "#{btn_text}登録", user_attendance_path(@user, day), method: :patch, class: "btn btn-primary btn-attendance" %>
-            <% end %>
-          </td>
+          <td></td>
           <!--退社 時-->
           <td>
             <%= l(calc_round_time(day.finished_at), format: :hour) if day.finished_at.present? %>
@@ -119,11 +86,7 @@
             <%= l(calc_round_time(day.finished_at), format: :min) if day.finished_at.present? %>
           </td>
           <!--退社 勤怠登録ボタン-->
-          <td>
-          <% if btn_text == "退勤" %>
-            <%= link_to "#{btn_text}登録", user_attendance_path(@user, day), method: :patch, class: "btn btn-primary btn-attendance" %>
-          <% end %>
-          </td>
+          <td></td>
           <!--在社時間-->
           <td>
             <% if day.started_at.present? && day.finished_at.present? %>
@@ -152,25 +115,18 @@
         <td rowspan = "2"></td>
         <td colspan = "2">累積日数</td>
         <td colspan = "6">総合勤務時間</td>
-        <td colspan = "2">累計在社時間</td>
-        <td rowspan = "2" colspan = "3"></td>
-        <td rowspan = "2" colspan = "2">
-          所属長承認　未
-          <%= form_with(url: '#', local: true) do |f| %>
-            <%= f.select :manager, [["上長A", "上長A"],["上長B", "上長B"]], {include_blank: "選択して下さい"},{class: "attendance_month_apply"} %>
-            <%= f.submit "申請", class: "btn btn-block btn-primary" %>
-          <% end %>          
-        </td>
+        <td colspan = "1">累計在社時間</td>
+        <td rowspan = "2"></td>
       </tr>
       <tr>
         <td colspan = "2"><%= @attendances.count %></td>
         <td colspan = "6"><%= format_basic_info(@user.work_time).to_f * @worked_sum %></td>
-        <td colspan = "2"><%= format("%.2f", @total_working_times.to_f) %></td>
+        <td colspan = "1"><%= format("%.2f", @total_working_times.to_f) %></td>
+        <td colspan = "5">
+          所属長承認　未          
+        </td>
       </tr>
     </tfoot>
     
   </table>
  </div>
-
- <!-- モーダルウィンドウ表示 -->
- <div id="attendance_chg_req" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
