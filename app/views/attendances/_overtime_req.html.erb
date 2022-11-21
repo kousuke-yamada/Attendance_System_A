@@ -1,0 +1,57 @@
+<% provide(:class_text, 'basic-info') %>
+<% provide(:button_text, '更新') %>
+
+<div class="modal-dialog modal-lg modal-dialog-center">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <!-- 表題：残業申請 -->
+          <div class="modal-title">【残業申請】</div>          
+          <!-- テーブル：残業申請フォーム -->
+          <%= form_with(model: @attendance, url: attendances_update_overtime_req_user_path(@user, date_id: @attendance.id), local: true, method: :patch) do |f| %>
+            <table class="table table-bordered table-condensed table-striped">
+              <thead>
+                <tr>
+                  <th>日付</th>
+                  <th>曜日</th>
+                  <th>終了予定時間</th>
+                  <th>翌日</th>
+                  <th>業務処理内容</th>
+                  <th>指示者確認㊞</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <!-- 日付 -->
+                  <td><%= l(@attendance.worked_on, format: :short) %></td>
+                  <!-- 曜日 -->
+                  <td><%= $days_of_the_week[@attendance.worked_on.wday] %></td>
+                  <!-- 終了予定時刻 -->
+                  <td><%= f.time_field :overtime_at, required: true, class: "form-control" %></td>
+                  <!-- 翌日 -->
+                  <td><%= check_box_tag(:attendance_nextday) %></td>
+                  <!-- 業務処理内容 -->
+                  <td><%= f.text_field :overtime_content, class: "form-control" %></td>
+                   <!-- 指示者確認印(プルダウン) -->
+                   <td><%= f.select :overtime_instructor, [["上長A", "上長A"],["上長B", "上長B"]], {include_blank: ""},{required: true, class: ""} %></td>
+                </tr>
+              </tbody>
+            </table>              
+          
+            <div class="center">
+              <%= f.hidden_field :overtime_approval_status,  :value => "申請中" %>
+              <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+            </div>
+            
+          <% end %>  
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

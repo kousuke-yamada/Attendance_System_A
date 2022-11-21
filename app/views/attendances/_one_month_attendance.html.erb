@@ -1,0 +1,65 @@
+<% provide(:class_text, 'basic-info') %>
+<% provide(:button_text, '更新') %>
+
+<div class="modal-dialog modal-lg modal-dialog-center">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+      <!-- <h1 class="modal-title">勤怠変更申請</h1> -->
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <%= form_with(model: @user, url: attendances_update_one_month_attendance_user_path(date: @first_day), local: true, method: :patch) do |f| %>
+            <% @applicants.each do |applicant| %>
+              <!-- 表題：申請者の名前 -->
+              <div class="modal-title">
+                【<%= applicant.name %>からの１ヶ月分勤怠申請】
+              </div>
+              
+              <!-- テーブル：１ヶ月分の勤怠申請 -->
+              <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th>月</th>
+                    <th>指示者確認㊞</th>
+                    <th>変更</th>
+                    <th>勤怠を確認する</th>
+                  </tr>
+                </thead>
+                <tbody>                
+                  <% one_month_attendances = get_one_month_attendance(applicant.id, @user.name) %>
+                  <% one_month_attendances.each do |one_month_attendance| %>
+                    <%= f.fields_for "monthly_attendances[]", one_month_attendance do |i| %>
+                      <tr>
+                        <!-- 月 -->
+                        <td><%= one_month_attendance.month %>月</td>
+                        <!-- 指示者確認印(プルダウン) -->
+                        <td><%= i.select :approval_status, [["なし", "なし"],["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], {selected: one_month_attendance.approval_status} %></td>
+                        <!-- 変更(チェックボックス) -->
+                        <td><%= i.check_box :chg_permission %></td>
+                        <!-- 勤怠を確認する -->
+                        <% confirm_date = one_month_attendance.year + "-" + one_month_attendance.month + "-01 00:00" %>
+                        <td><%= link_to "確認", confirm_attendance_user_path(applicant, date: confirm_date.to_datetime.beginning_of_month), class: "btn btn-primary" %></td>
+                        
+                        <!-- 申請者のidを渡す -->
+                        <%= i.hidden_field :user_id, :value => applicant.id %>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>              
+            <% end %>
+
+            <div class="center">
+              <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

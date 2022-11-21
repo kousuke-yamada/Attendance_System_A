@@ -28,16 +28,19 @@
     width: 4% ;
   }
   .attendances_time_header {
-    width: 4% ;
+    width: 3% ;
   }
   .attendances_btn_header {
     width: 8% ;
   }
   .attendances_worktime_header {
-    width: 4% ;
+    width: 5% ;
   }
   .attendances_note_header {
-    width: 20% ;
+    width: 15% ;
+  }
+  .attendances_apply_header {
+    width: 5% ;
   }
   .attendances_note_body {
     text-align: left;
@@ -108,7 +111,7 @@ table.user-table tr td.basic_info_header {
 }
 
 /* 申請通知 */
-.attendance_chg_req_info {
+.attendance_notification {
   color:#ff0000;
   font-weight: bold;
   border: solid 2px #ff0000;

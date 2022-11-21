@@ -30,20 +30,28 @@
 <% if superior_user? %>
   <p>
     <!-- 所属長承認申請-->
-    <!-- <%= link_to "【所属長承認申請のお知らせ】", '#', class: "" %> </br> -->
-    <span>【所属長承認申請のお知らせ】</span> </br>
+    <% if @one_month_attendance_sum > 0 %>
+      <%= link_to "【所属長承認申請のお知らせ】", attendances_one_month_attendance_user_path, remote: true, class: "" %>
+      <span class="attendance_notification"><%= @one_month_attendance_sum %>件の通知があります</span></br>
+    <% else %>  
+      <span>【所属長承認申請のお知らせ】</span> </br>
+    <% end %>
 
     <!-- 勤怠変更申請-->
     <% if @attendance_chg_req_sum > 0 %>
       <%= link_to "【勤怠変更申請のお知らせ】", attendances_attendance_chg_req_user_path, remote: true,class: "" %> 
-      <span class="attendance_chg_req_info"><%= @attendance_chg_req_sum %>件の通知があります</span></br>
+      <span class="attendance_notification"><%= @attendance_chg_req_sum %>件の通知があります</span></br>
     <% else %>
       <span>【勤怠変更申請のお知らせ】</span> </br>
     <% end %>
 
     <!-- 残業申請-->
-    <!-- <%= link_to "【残業申請のお知らせ】", '#', class: "" %> -->
-    <span>【残業申請のお知らせ】</span>
+    <% if @overtime_attendance_sum > 0 %>
+      <%= link_to "【残業申請のお知らせ】", attendances_show_overtime_req_user_path, remote: true, class: "" %>
+      <span class="attendance_notification"><%= @overtime_attendance_sum %>件の通知があります</span></br>
+    <% else %>
+      <span>【残業申請のお知らせ】</span> </br>
+    <% end %>
   </p>
 <% end %>
 
@@ -69,9 +77,9 @@
         <th rowspan = 2 class="attendances_worktime_header">在社時間</th>
         <th rowspan = 2 class="attendances_note_header">備考</th>
         <th colspan = 2>終了予定<br>時間</th>
-        <th rowspan = 2>時間外<br>時間</th>
-        <th rowspan = 2>業務処理<br>内容</th>
-        <th rowspan = 2>指示者<br>確認㊞</th>
+        <th rowspan = 2 class="attendances_worktime_header">時間外<br>時間</th>
+        <th rowspan = 2 class="attendances_note_header">業務処理<br>内容</th>
+        <th rowspan = 2 class="attendances_apply_header">指示者<br>確認㊞</th>
        </tr>
        <tr>
          <th class="attendances_time_header">時</th>
@@ -88,7 +96,7 @@
       <% @attendances.each do |day| %>
         <tr>
           <!--残業申請ボタン-->
-          <td><%= link_to "残業申請", '#', class: "btn btn-primary" %></td>
+          <td><%= link_to "残業申請", attendances_overtime_req_user_path(@user, date_id: day.id), remote: true, class: "btn btn-primary" %></td>
           <!--日付-->
           <td><%= l(day.worked_on, format: :short) %></td>
           <!--曜日-->
@@ -155,9 +163,28 @@
         <td colspan = "2">累計在社時間</td>
         <td rowspan = "2" colspan = "3"></td>
         <td rowspan = "2" colspan = "2">
-          所属長承認　未
-          <%= form_with(url: '#', local: true) do |f| %>
-            <%= f.select :manager, [["上長A", "上長A"],["上長B", "上長B"]], {include_blank: "選択して下さい"},{class: "attendance_month_apply"} %>
+          <!-- １ヶ月分の勤怠申請フォーム　 -->
+          <% @month_attendances.each do |month_attendance| %>
+            <% case month_attendance.approval_status %>
+            <% when "申請中" %>
+              所属長承認 <%= month_attendance.instructor %>へ申請中
+            <% when "承認" %>
+              所属長承認 <%= month_attendance.instructor %>から承認済
+            <% when "否認" %>
+              所属長承認 <%= month_attendance.instructor %>から否認
+            <% else %>
+              所属長承認 未
+            <% end %>
+          <% end %>
+
+          <%= form_with(model: @user, url: attendances_apply_one_month_attendance_user_path(@user) , local: true, method: :patch) do |f| %>
+            <%= f.fields_for :monthly_attendances do |i| %>
+              <%= i.select :instructor, [["上長A", "上長A"],["上長B", "上長B"]], {include_blank: "選択して下さい"},{required: true, class: "attendance_month_apply"} %>
+              <%= i.hidden_field :month, :value => @first_day.month.to_s %>
+              <%= i.hidden_field :year,  :value => @first_day.year.to_s %>
+              <%= i.hidden_field :user_id,  :value => @user.id %>
+            <% end %>
+            
             <%= f.submit "申請", class: "btn btn-block btn-primary" %>
           <% end %>          
         </td>
@@ -174,3 +201,6 @@
 
  <!-- モーダルウィンドウ表示 -->
  <div id="attendance_chg_req" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+ <div id="one_month_attendance" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+ <div id="overtime_req" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+ <div id="show_overtime_req" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

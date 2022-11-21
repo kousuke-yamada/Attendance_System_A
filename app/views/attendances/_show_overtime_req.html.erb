@@ -1,0 +1,81 @@
+<% provide(:class_text, 'basic-info') %>
+<% provide(:button_text, '更新') %>
+
+<div class="modal-dialog modal-lg modal-dialog-center">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+      <!-- <h1 class="modal-title">勤怠変更申請</h1> -->
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+
+          <%= form_with(model: @user, url: attendances_apply_overtime_req_user_path(@user), local: true, method: :patch) do |f| %>
+            <% @applicants.each do |applicant| %>
+              <!-- 表題：申請者の名前 -->
+              <div class="modal-title">
+                【<%= applicant.name %>からの残業申請】
+              </div>
+              
+              <!-- テーブル：残業申請 -->
+              <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th>日付</th>
+                    <th>曜日</th>
+                    <th>終了予定時間</th>
+                    <th>指定勤務終了時間</th>
+                    <th>時間外時間</th>
+                    <th>業務処理内容</th>
+                    <th>指示者確認㊞</th>
+                    <th>変更</th>
+                    <th>勤怠を確認する</th>
+                  </tr>
+                </thead>
+                <tbody>                
+                  <% overtime_attendances = get_overtime_attendance(applicant.id, @user.name) %>
+                  <% overtime_attendances.each do |day| %>
+                    <%= f.fields_for "attendances[]", day do |i| %>
+                      <tr>
+                        <!-- 日付 -->
+                        <td><%= l(day.worked_on, format: :short) %></td>
+                        <!-- 曜日 -->
+                        <td><%= $days_of_the_week[day.worked_on.wday] %></td>
+                        <!-- 終了予定時間 -->
+                        <td><%= l(calc_round_time(day.overtime_at), format: :time) %></td>
+                        <!-- 指定勤務終了時間 -->
+                        <td><%= l(calc_round_time(applicant.work_end_time), format: :time) %></td>
+                        <!-- 時間外時間 -->
+                        <td></td>
+                        <!-- 業務処理内容 -->
+                        <td><%= day.overtime_content %></td>
+                        <!-- 指示者確認印(プルダウン) -->
+                        <td><%= i.select :overtime_approval_status, [["なし", "なし"],["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], {selected: day.overtime_approval_status} %></td>
+                        <!-- 変更(チェックボックス) -->
+                        <td><%= i.check_box :overtime_chg_permission %></td>
+                        <!-- 勤怠を確認する -->
+                        <td><%= link_to "確認", confirm_attendance_user_path(applicant, date: day.worked_on.beginning_of_month), class: "btn btn-primary" %></td>
+                        
+                        <!-- 申請者のidを渡す -->
+                        <%= i.hidden_field :user_id, :value => applicant.id %>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>              
+            <% end %>
+
+            <div class="center">
+              <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+            </div>
+
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

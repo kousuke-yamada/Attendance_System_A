@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  month: 2022-11-16 00:04:56
+  instructor: MyString
+  approval_status: MyString
+  chg_permission: false
+
+two:
+  month: 2022-11-16 00:04:56
+  instructor: MyString
+  approval_status: MyString
+  chg_permission: false

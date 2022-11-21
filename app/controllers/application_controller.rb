@@ -75,4 +75,23 @@ class ApplicationController < ActionController::Base
     redirect_to root_url
   end
 
+  def set_monthly_attendance
+    @first_day = params[:date].nil? ? Date.current.beginning_of_month : params[:date].to_date
+    
+    month = @first_day.month.to_s
+    year  = @first_day.year.to_s
+    @month_attendances = @user.monthly_attendances.where(month: month, year: year)
+    
+    unless @month_attendances.count > 0
+      ActiveRecord::Base.transaction do # トランザクションを開始します。
+        @user.monthly_attendances.create!(month: month, year: year)
+      end
+      @month_attendances = @user.monthly_attendances.where(month: month, year: year)
+    end
+
+    rescue ActiveRecord::RecordInvalid # トランザクションによるエラーの分岐です。
+      flash[:danger] = "ページ情報の取得に失敗しました、再アクセスしてください。"
+      redirect_to root_url
+  end
+
 end

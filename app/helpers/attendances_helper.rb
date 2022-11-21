@@ -39,4 +39,16 @@ module AttendancesHelper
     return attendances
   end
 
+  # １ヶ月分の勤怠申請の月を取得
+  def get_one_month_attendance(user_id, instructor)
+    one_month_attendances = MonthlyAttendance.where(user_id: user_id, approval_status: "申請中", instructor: instructor)
+    return one_month_attendances
+  end
+
+  # 残業申請中の日付を取得
+  def get_overtime_attendance(user_id, instructor)
+    overtime_attendances = Attendance.where(user_id: user_id, overtime_approval_status: "申請中", overtime_instructor: instructor)
+    return overtime_attendances
+  end
+
 end

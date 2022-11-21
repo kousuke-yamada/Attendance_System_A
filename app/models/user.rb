@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_many :attendances, dependent: :destroy
+  has_many :monthly_attendances, dependent: :destroy
   
   attr_accessor :remember_token
   before_save { self.email = email.downcase }

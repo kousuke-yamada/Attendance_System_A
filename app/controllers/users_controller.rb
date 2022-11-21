@@ -5,6 +5,7 @@ class UsersController < ApplicationController
   before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info]
   before_action :admin_or_correct_user, only: :show
   before_action :set_one_month, only: [:show, :confirm_attendance]
+  before_action :set_monthly_attendance, only: :show
 
   def index
     @users = User.paginate(page: params[:page])
@@ -13,8 +14,14 @@ class UsersController < ApplicationController
   def show
     @worked_sum = @attendances.where.not(started_at: nil, finished_at: nil).count
 
+    # １ヶ月分の勤怠申請件数の取得
+    @one_month_attendance_sum = User.joins(:monthly_attendances).where(monthly_attendances: {approval_status: "申請中", instructor: @user.name}).count
+
     # 勤怠変更申請件数の取得
     @attendance_chg_req_sum = User.joins(:attendances).where(attendances: {approval_status: "申請中", instructor: @user.name}).count
+
+    # 残業申請の件数取得
+    @overtime_attendance_sum = User.joins(:attendances).where(attendances: {overtime_approval_status: "申請中", overtime_instructor: @user.name}).count
   end
   
   def new
