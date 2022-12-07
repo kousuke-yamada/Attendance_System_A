@@ -45,11 +45,13 @@
                         <!-- 曜日 -->
                         <td><%= $days_of_the_week[day.worked_on.wday] %></td>
                         <!-- 終了予定時間 -->
-                        <td><%= l(calc_round_time(day.overtime_at), format: :time) %></td>
+                        <% estimated_endtime = calc_round_time(day.overtime_at) %>
+                        <td><%= l(estimated_endtime, format: :time) %></td>
                         <!-- 指定勤務終了時間 -->
-                        <td><%= l(calc_round_time(applicant.work_end_time), format: :time) %></td>
+                        <% basetime = calc_round_time(applicant.designated_work_end_time) %>
+                        <td><%= l(basetime, format: :time) %></td>
                         <!-- 時間外時間 -->
-                        <td></td>
+                        <td><%= calc_overtime(estimated_endtime, basetime) %></td>
                         <!-- 業務処理内容 -->
                         <td><%= day.overtime_content %></td>
                         <!-- 指示者確認印(プルダウン) -->

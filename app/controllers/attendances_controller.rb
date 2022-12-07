@@ -1,9 +1,10 @@
 class AttendancesController < ApplicationController
-  before_action :set_user, only: [:edit_one_month, :update_one_month, :disp_log, :attendance_chg_req, :apply_one_month_attendance, :one_month_attendance, :overtime_req, :show_overtime_req]
+  before_action :set_user, only: [:edit_one_month, :update_one_month, :disp_log, :attendance_chg_req, :apply_one_month_attendance, :one_month_attendance, :overtime_req, :show_overtime_req, :search_log]
   before_action :set_user_by_user_id, only: :update
   before_action :logged_in_user, only: [:update, :edit_one_month]
   before_action :admin_or_correct_user, only: [:update, :edit_one_month, :update_one_month]
   before_action :set_one_month, only: [:edit_one_month, :disp_log, :apply_one_month_attendance]
+  before_action :set_superior_user, only: [:edit_one_month, :overtime_req]
   
   UPDATE_ERROR_MSG = "勤怠登録に失敗しました。やり直して下さい。"
 
@@ -41,70 +42,88 @@ class AttendancesController < ApplicationController
   
   # 勤怠編集ページの更新ボタン押下時の処理
   def update_one_month
-    error_flag = false
-    no_inst_flag  = false
+    oneside_time_error = false
+    time_integrity_error = false
+    time_no_set_error = false
+    instructor_check_flag = false
     
     ActiveRecord::Base.transaction do  # トランザクションを開始します。
       attendances_params.each do |id, item|
-        if (item[:started_at].blank?   && item[:finished_at].present? ) || 
-           (item[:started_at].present? && item[:finished_at].blank? )
-           error_flag = true
-           raise ActiveRecord::Rollback
-        end 
+        # 指示者確認㊞ が設定されている場合のみ、変更有効
+        # 指示者確認㊞ を選択している場合のみチェックを行う
+        if item[:instructor].present?
+
+          # 出社時間、退社時間のみはNG
+          if (item[:started_at].blank?   && item[:finished_at].present? ) || 
+             (item[:started_at].present? && item[:finished_at].blank? )
+            oneside_time_error = true
+            raise ActiveRecord::Rollback
+          end 
         
-        # 出勤時間、退勤時間の指定あり？
-        if(item[:started_at].present? && item[:finished_at].present? ) 
-
-          attendance = Attendance.find(id)  
-          
-          ######## デバックでデータ登録する時に使う用 ##########
-          # attendance.update_attributes!(item)
-          ################################################
-                    
-          # 変更前の出社時刻
-          bfr_str_time = attendance.started_at.blank? ? nil : attendance.started_at.to_time
-          # 変更前の退社時刻
-          bfr_fin_time = attendance.finished_at.blank? ? nil : attendance.finished_at.to_time
-          
-          if ( bfr_str_time != item[:started_at].to_time ) ||
-             ( bfr_fin_time != item[:finished_at].to_time )
-
-            # 指示者確認印が設定されている場合のみ、変更有効
-            if item[:instructor].present?
-
-              # 変更したい出社時間
-              attendance.chg_started_at = item[:started_at]
-              # 変更したい退社時間
-              attendance.chg_finished_at = item[:finished_at]
-              # 備考
-              attendance.note = item[:note]
-              # 指示者
-              attendance.instructor = item[:instructor]
-              # 承認ステータス
-              attendance.approval_status = APPROVAL_STS_APL
-              
-              attendance.save!
-              # attendance.update_attributes!(item)
-            else              
-              # 指示者の指定なし
-              no_inst_flag = true
-              raise ActiveRecord::Rollback  
+          # 出勤時間、退勤時間の指定あり？
+          if(item[:started_at].present? && item[:finished_at].present? )
+            # 出社時間が退社時間より早いとNG
+            if item[:started_at].to_time > item[:finished_at].to_time
+              time_integrity_error = true
+              raise ActiveRecord::Rollback
             end
+
+            attendance = Attendance.find(id)  
+            
+            ######## デバックでデータ登録する時に使う用 ##########
+            # attendance.update_attributes!(item)
+            ################################################
+                      
+            # 変更前の出社時刻
+            bfr_str_time = attendance.started_at.blank? ? nil : attendance.started_at.to_time
+            # 変更前の退社時刻
+            bfr_fin_time = attendance.finished_at.blank? ? nil : attendance.finished_at.to_time
+            
+            # 勤怠時間について、フォームの内容とDBの登録情報を比較して異なる場合に情報更新
+            if ( bfr_str_time != item[:started_at].to_time ) ||
+              ( bfr_fin_time != item[:finished_at].to_time )
+
+                # 変更したい出社時間
+                attendance.chg_started_at = item[:started_at]
+                # 変更したい退社時間
+                attendance.chg_finished_at = item[:finished_at]
+                # 備考
+                attendance.note = item[:note]
+                # 指示者
+                attendance.instructor = item[:instructor]
+                # 承認ステータス
+                attendance.approval_status = APPROVAL_STS_APL
+                
+                attendance.save!
+                instructor_check_flag = true
+                # attendance.update_attributes!(item)            
+            end
+            
+          else
+            # 勤怠変更時間が未設定
+            time_no_set_error = true
+            raise ActiveRecord::Rollback           
           end
         end
       end
     end
     
-    if error_flag 
+    if oneside_time_error 
       flash[:danger] = "出社時間、または退社時間どちらか片方のみの更新は出来ません。更新をキャンセルしました。"
-      redirect_to attendances_edit_one_month_user_url(date: params[:date])  
-    elsif no_inst_flag
-      flash[:danger] = "勤怠変更の申請には指示者を指定して下さい。更新をキャンセルしました。"
       redirect_to attendances_edit_one_month_user_url(date: params[:date])
-    else
+    elsif time_integrity_error
+      flash[:danger] = "退社時間を出社時間より早い時刻には出来ません。更新をキャンセルしました。"
+      redirect_to attendances_edit_one_month_user_url(date: params[:date])
+    elsif time_no_set_error
+      flash[:danger] = "勤怠変更時間を指定してください。"
+      redirect_to attendances_edit_one_month_user_url(date: params[:date])
+    elsif instructor_check_flag
       flash[:success] = "勤怠変更を申請しました。"
       redirect_to user_url(date: params[:date])
-    end    
+    else
+      flash[:danger] = "勤怠変更する日時について、指示者確認㊞を指定して下さい。"
+      redirect_to attendances_edit_one_month_user_url(date: params[:date])
+    end
     
     rescue ActiveRecord::RecordInvalid  # トランザクションによるエラーの分岐です。
       flash[:danger] = "無効な入力データがあったため、更新をキャンセルしました。"
@@ -112,7 +131,23 @@ class AttendancesController < ApplicationController
   end
   
   # 勤怠修正ログ(承認済)の表示
-  def disp_log    
+  def disp_log
+    if params[:date].present?
+      day = params[:date].to_date
+      @log_month = "【#{day.year}年#{day.month}月の勤怠修正ログ】" 
+    else
+      @log_month = ""
+    end
+  end
+
+  def search_log
+    if params[:user][:month].present?
+      @first_day = (params[:user][:month] + "-01").to_date
+      redirect_to attendances_disp_log_user_url(date: @first_day)
+    else
+      flash[:danger] = "勤怠ログの取得に失敗しました。"
+      redirect_to @user
+    end
   end
 
   # 勤怠変更申請の内容表示
@@ -210,7 +245,7 @@ class AttendancesController < ApplicationController
   def update_one_month_attendance
     # 承認情報更新フラグ
     apply_flg = false
-    　
+    
     ActiveRecord::Base.transaction do  # トランザクションを開始します。
       # 勤怠変更申請の承認処理
       one_month_attendances_application_params.each do |id, item|

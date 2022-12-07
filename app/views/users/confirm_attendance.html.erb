@@ -6,15 +6,15 @@
         <%= l(@first_day, format: :middle) %>  時間管理表
       </td>
       <td class="basic_info_header">
-        指定勤務開始時間：<%= format_basic_info(@user.work_time) %> <br>
-        指定勤務終了時間：<%= format_basic_info(@user.work_end_time) %>
+        指定勤務開始時刻：<%= l(@user.designated_work_start_time, format: :time) %> <br>
+        指定勤務終了時刻：<%= l(@user.designated_work_end_time, format: :time) %>
       </td>
-      <td class="basic_info_header" colspan = 3 >基本時間：<%= format_basic_info(@user.basic_time) %></td>
+      <td class="basic_info_header" colspan = 3 >基本時間：<%= format_basic_info(@user.basic_work_time) %></td>
       <td class="basic_info_header">初日：<%= l(@first_day, format: :short) %></td>
     </tr>
 
     <tr>
-      <td>所属：<%= @user.department.present? ? @user.department : "未所属" %></td>
+      <td>所属：<%= @user.affiliation.present? ? @user.affiliation : "未所属" %></td>
       <td>氏名：<%= @user.name %></td>
       <td>コード</td>
       <td></td>
@@ -67,24 +67,38 @@
           <td class = "<%= set_color_of_day_of_week(day.worked_on.wday) %>">
             <%= $days_of_the_week[day.worked_on.wday] %>
           </td>
-          <!--出社 時-->
-          <td>
-            <%= l(calc_round_time(day.started_at), format: :hour) if day.started_at.present? %>
-          </td>
-          <!--出社 分-->
-          <td>
-            <%= l(calc_round_time(day.started_at), format: :min) if day.started_at.present? %>
-          </td>
+    
+          <!-- 出社 -->
+          <% if day.started_at.present? %>
+            <% start_t = calc_round_time(day.started_at) %>
+            <!--出社 時-->
+            <td><%= l(start_t, format: :hour) %></td>
+            <!--出社 分-->
+            <td><%= l(start_t, format: :min) %></td>
+          <% else %>
+            <!--出社 時-->
+            <td></td>
+            <!--出社 分-->
+            <td></td>
+          <% end %>
+
           <!--出社 勤怠登録ボタン-->
           <td></td>
-          <!--退社 時-->
-          <td>
-            <%= l(calc_round_time(day.finished_at), format: :hour) if day.finished_at.present? %>
-          </td>
-          <!--退社 分-->
-          <td>
-            <%= l(calc_round_time(day.finished_at), format: :min) if day.finished_at.present? %>
-          </td>
+          
+          <!-- 退社 -->
+          <% if day.finished_at.present? %>
+            <% finish_t = calc_round_time(day.finished_at) %>
+            <!--退社 時-->
+            <td><%= l(finish_t, format: :hour) %></td>
+            <!--退社 分-->
+            <td><%= l(finish_t, format: :min) %></td>
+          <% else %>
+            <!--退社 時-->
+            <td></td>
+            <!--退社 分-->
+            <td></td>
+          <% end %>
+
           <!--退社 勤怠登録ボタン-->
           <td></td>
           <!--在社時間-->
@@ -96,16 +110,39 @@
           </td>
           <!--備考-->
           <td class="attendances_note_body"><%= day.note %></td>
-          <!--終了予定時刻 時-->
-          <td></td>  
-          <!--終了予定時刻 分 -->
-          <td></td>
-          <!--時間外時間 -->
-          <td></td>
+          
+          <!-- 終了予定時刻 -->
+          <% if day.overtime_at.present? %>
+            <% estimated_endtime = calc_round_time(day.overtime_at) %>
+            <!--終了予定時刻 時-->
+            <td><%= l(estimated_endtime, format: :hour) %></td>  
+            <!--終了予定時刻 分 -->
+            <td><%= l(estimated_endtime, format: :min) %></td>
+            <!--時間外時間 -->
+            <% basetime = calc_round_time(@user.designated_work_end_time) %>
+            <td><%= calc_overtime(estimated_endtime, basetime) %></td>
+          <% else %>
+            <!--終了予定時刻 時-->
+            <td></td>  
+            <!--終了予定時刻 分 -->
+            <td></td>
+            <!--時間外時間 -->
+            <td></td>
+          <% end %>
+
           <!--業務処理内容 -->
-          <td></td>
+          <td><%= day.overtime_content %></td>
           <!--指示者確認㊞ -->
-          <td></td>
+          <td>
+            <!--勤怠変更申請状況 -->
+            <% if day.approval_status == "申請中" %>
+              <%= day.instructor %>へ勤怠変更<%= day.approval_status %>
+            <% end %>
+            <!-- 残業申請状況 -->
+            <% if day.overtime_approval_status == "申請中" %>
+              <%= day.overtime_instructor %>へ残業<%= day.overtime_approval_status %>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
@@ -115,16 +152,28 @@
         <td rowspan = "2"></td>
         <td colspan = "2">累積日数</td>
         <td colspan = "6">総合勤務時間</td>
-        <td colspan = "1">累計在社時間</td>
-        <td rowspan = "2"></td>
+        <td colspan = "2">累計在社時間</td>
+        <td rowspan = "2" colspan="3"></td>
+        <td rowspan = "2" colspan="2">
+          <!-- １ヶ月分の勤怠申請フォーム　 -->
+          <% @month_attendances.each do |month_attendance| %>
+            <% case month_attendance.approval_status %>
+            <% when "申請中" %>
+              所属長承認 <%= month_attendance.instructor %>へ申請中
+            <% when "承認" %>
+              所属長承認 <%= month_attendance.instructor %>から承認済
+            <% when "否認" %>
+              所属長承認 <%= month_attendance.instructor %>から否認
+            <% else %>
+              所属長承認 未
+            <% end %>
+          <% end %>
+        </td>
       </tr>
       <tr>
         <td colspan = "2"><%= @attendances.count %></td>
-        <td colspan = "6"><%= format_basic_info(@user.work_time).to_f * @worked_sum %></td>
-        <td colspan = "1"><%= format("%.2f", @total_working_times.to_f) %></td>
-        <td colspan = "5">
-          所属長承認　未          
-        </td>
+        <td colspan = "6"><%= format_basic_info(@user.designated_work_start_time).to_f * @worked_sum %></td>
+        <td colspan = "2"><%= format("%.2f", @total_working_times.to_f) %></td>
       </tr>
     </tfoot>
     

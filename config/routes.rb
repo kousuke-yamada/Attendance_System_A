@@ -18,9 +18,12 @@ Rails.application.routes.draw do
       patch 'update_basic_info'
       get 'attendances/edit_one_month'
       patch 'attendances/update_one_month'
+      # csvエクスポート
+      get :csv_export, defaults: {format: 'csv'}
 
       # 勤怠修正ログ(承認済)
       get 'attendances/disp_log'
+      post 'attendances/search_log'
       # 勤怠変更申請     
       get 'attendances/attendance_chg_req'
       patch 'attendances/update_attendance_chg_req'

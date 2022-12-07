@@ -39,7 +39,7 @@
                   <!-- 業務処理内容 -->
                   <td><%= f.text_field :overtime_content, class: "form-control" %></td>
                    <!-- 指示者確認印(プルダウン) -->
-                   <td><%= f.select :overtime_instructor, [["上長A", "上長A"],["上長B", "上長B"]], {include_blank: ""},{required: true, class: ""} %></td>
+                   <td><%= f.collection_select :overtime_instructor, @superiors, :name, :name, {include_blank: ""},{required: true, class: ""} %></td>
                 </tr>
               </tbody>
             </table>              

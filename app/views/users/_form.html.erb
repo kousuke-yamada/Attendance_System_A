@@ -10,8 +10,8 @@
   <%= f.email_field :email, class: "form-control" %>
   
   <!-- 所属 -->
-  <%= f.label :department, class: "label-#{yield(:class_text)}" %>
-  <%= f.text_field :department, class: "form-control" %>
+  <%= f.label :affiliation, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :affiliation, class: "form-control" %>
   
   <!-- 社員番号 -->
   <%= f.label :employee_number, class: "label-#{yield(:class_text)}" %>
@@ -22,16 +22,16 @@
   <%= f.text_field :uid, class: "form-control" %>
   
   <!-- 基本勤務時間 -->
-  <%= f.label :basic_time, class: "label-#{yield(:class_text)}" %>
-  <%= f.time_field :basic_time, class: "form-control" %>
+  <%= f.label :basic_work_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.time_field :basic_work_time, class: "form-control" %>
   
   <!-- 指定勤務開始時間 -->
-  <%= f.label :work_time, class: "label-#{yield(:class_text)}" %>
-  <%= f.time_field :work_time, class: "form-control" %>
+  <%= f.label :designated_work_start_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.time_field :designated_work_start_time, class: "form-control" %>
 
   <!-- 指定勤務終了時間 -->
-  <%= f.label :work_end_time, class: "label-#{yield(:class_text)}" %>
-  <%= f.time_field :work_end_time, class: "form-control" %>
+  <%= f.label :designated_work_end_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.time_field :designated_work_end_time, class: "form-control" %>
 
   <!-- パスワード -->
   <%= f.label :password, class: "label-#{yield(:class_text)}" %>

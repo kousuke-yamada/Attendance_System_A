@@ -2,6 +2,12 @@
 <h1>勤怠ログ</h1>
 
 <div>
+  <%= form_with(model: @user, url:attendances_search_log_user_path, method: :post, local: true) do |f| %>
+    <%= f.month_field :month, required: true %>
+    <%= f.submit "検索", class: "btn btn-primary" %>
+  <% end %><br/>
+
+  <h4><%= @log_month %></h4>
   <table class="table table-bordered table-condensed table-hover" id="table-attendances">
     <thead>
       <tr>
@@ -10,7 +16,7 @@
         <th>変更前退社時間</th>
         <th>変更後出社</th>
         <th>変更後退社</th>
-        <th>指示者</th>
+        <th>承認者</th>
         <th>承認日</th>
       </tr>
     </thead>

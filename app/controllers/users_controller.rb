@@ -1,14 +1,17 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info, :confirm_attendance]
+  include AttendancesHelper
+  
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info, :confirm_attendance, :csv_export]
   before_action :logged_in_user, only: [:index,:show, :edit, :update, :destroy, :edit_basic_info, :update_basic_info]
-  before_action :correct_user, only: [:edit, :update]
-  before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info]
-  before_action :admin_or_correct_user, only: :show
-  before_action :set_one_month, only: [:show, :confirm_attendance]
-  before_action :set_monthly_attendance, only: :show
+  before_action :correct_user, only: :edit
+  before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info, :attendance_at_work, :search]
+  before_action :admin_or_correct_user, only: [:show, :update]
+  before_action :set_one_month, only: [:show, :confirm_attendance, :csv_export]
+  before_action :set_monthly_attendance, only: [:show, :confirm_attendance]
+  before_action :set_superior_user, only: :show
 
   def index
-    @users = User.paginate(page: params[:page])
+    @users = User.paginate(page: params[:page]).where.not(name: @current_user.name)
   end
 
   def show
@@ -96,6 +99,15 @@ class UsersController < ApplicationController
     redirect_to users_url
   end
 
+  def csv_export
+    respond_to do |format|
+      format.html
+      format.csv do |csv|
+        send_attendances_csv(@attendances)
+      end
+    end
+  end
+
   def attendance_at_work
     @users = User.joins(:attendances).where(attendances: {worked_on: Date.today, finished_at: nil}).where.not(attendances: {started_at: nil})
   end
@@ -107,10 +119,38 @@ class UsersController < ApplicationController
   private
   
     def user_params
-      params.require(:user).permit(:name, :email, :department, :employee_number, :uid, :basic_time, :work_time, :work_end_time, :password, :password_confirmaiton)
+      params.require(:user).permit(:name, :email, :affiliation, :employee_number, :uid, :basic_work_time, :designated_work_start_time, :designated_work_end_time, :password, :password_confirmaiton)
     end
     
     def basic_info_params
-      params.require(:user).permit(:department,:basic_time, :work_time)
+      params.require(:user).permit(:affiliation,:basic_work_time, :designated_work_start_time)
     end
+
+     def send_attendances_csv(attendances)
+      csv_data = CSV.generate do |csv|
+        column_names = %w(日付 曜日 出社 退社)
+        csv << column_names
+        attendances.each do |attendance|
+          if attendance.started_at.present? && attendance.finished_at.present?
+              
+            column_values = [
+              l(attendance.worked_on, format: :short),          # 日付
+              $days_of_the_week[attendance.worked_on.wday],     # 曜日
+              l(calc_round_time(attendance.started_at), format: :time),                     # 出社
+              l(calc_round_time(attendance.finished_at), format: :time),                    # 退社
+            ]
+          else
+            column_values = [
+              l(attendance.worked_on, format: :short),          # 日付
+              $days_of_the_week[attendance.worked_on.wday],     # 曜日
+              "",          # 出社
+              "",         # 退社
+            ]
+          end  
+
+          csv << column_values
+        end
+      end
+      send_data(csv_data, filename: "勤怠一覧.csv")    
+     end 
 end
