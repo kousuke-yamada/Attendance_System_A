@@ -3,6 +3,7 @@ class AttendancesController < ApplicationController
   before_action :set_user_by_user_id, only: :update
   before_action :logged_in_user, only: [:update, :edit_one_month]
   before_action :admin_or_correct_user, only: [:update, :edit_one_month, :update_one_month]
+  before_action :invalid_admin_page, only: [:update, :edit_one_month, :update_one_month]
   before_action :set_one_month, only: [:edit_one_month, :disp_log, :apply_one_month_attendance]
   before_action :set_superior_user, only: [:edit_one_month, :overtime_req]
   

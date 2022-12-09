@@ -53,6 +53,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # システム管理権限所有者の無効ページ設定
+  def invalid_admin_page
+    if @user.admin?
+      flash[:danger] = "無効なページです。"
+      redirect_to root_url
+    end
+  end
+
   # 上長ユーザーをセットします。
   def set_superior_user
     @superiors = User.where(superior: true).where.not(name: @user.name)

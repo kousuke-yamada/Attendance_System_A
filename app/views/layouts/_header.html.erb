@@ -16,7 +16,9 @@
               アカウント <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-              <li><%= link_to "勤怠", current_user %></li>
+              <% unless admin_user? %>
+                <li><%= link_to "勤怠", current_user %></li>
+              <% end %>
               <li><%= link_to "個人情報編集", edit_user_path(current_user) %></li>
               <li class="divider"></li>
               <li>

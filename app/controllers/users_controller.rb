@@ -6,6 +6,7 @@ class UsersController < ApplicationController
   before_action :correct_user, only: :edit
   before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info, :attendance_at_work, :search]
   before_action :admin_or_correct_user, only: [:show, :update]
+  before_action :invalid_admin_page, only: [:show, :update]
   before_action :set_one_month, only: [:show, :confirm_attendance, :csv_export]
   before_action :set_monthly_attendance, only: [:show, :confirm_attendance]
   before_action :set_superior_user, only: :show
