@@ -11,7 +11,7 @@ processes = []
     SERVER_COMMAND = "bin/rails fly:server"
 
 [deploy]
-  release_command = "bin/rails fly:release"
+  release_command = "bundle exec rails db:migrate"
 
 [env]
   PORT = "8080"
