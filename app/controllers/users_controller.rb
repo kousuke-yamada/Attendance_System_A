@@ -12,7 +12,7 @@ class UsersController < ApplicationController
   before_action :set_superior_user, only: :show
 
   def index
-    @users = User.paginate(page: params[:page]).where.not(name: @current_user.name)
+    @users = User.paginate(page: params[:page]).where.not(name: @current_user.name).order(:id)
   end
 
   def show
