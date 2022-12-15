@@ -45,6 +45,7 @@
   }
   .attendances_note_body {
     text-align: left;
+    font-size: 0.9em;
   }
 
   /* 曜日 */
@@ -116,4 +117,18 @@ table.user-table tr td.basic_info_header {
   color:#ff0000;
   font-weight: bold;
   border: solid 2px #ff0000;
+}
+
+/* 申請結果 */
+.show_apply_now {
+  color:#000000;
+  font-size: 0.9em;
+}
+.show_apply_ok {
+  color:#0000ff;
+  font-size: 0.9em;
+}
+.show_apply_ng {
+  color:#ff0000;
+  font-size: 0.9em;
 }

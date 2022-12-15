@@ -131,17 +131,32 @@
           <% end %>
 
           <!--業務処理内容 -->
-          <td><%= day.overtime_content %></td>
+          <td class="attendances_note_body"><%= day.overtime_content %></td>
           <!--指示者確認㊞ -->
           <td>
             <!--勤怠変更申請状況 -->
-            <% if day.approval_status == "申請中" %>
-              <%= day.instructor %>へ勤怠変更<%= day.approval_status %>
+            <% case day.approval_status %>
+            <% when "申請中" %>
+              <span class="show_apply_now"><%= day.instructor %>へ勤怠変更申請中</span><br/>
+            <% when "承認" %>
+              <span class="show_apply_ok"><%= day.instructor %>から勤怠変更:承認済</span><br/>
+            <% when "否認" %>
+              <span class="show_apply_ng"><%= day.instructor %>から勤怠変更:否認</span><br/>
+            <% else %>
+              <!-- 表示内容なし -->
             <% end %>
+
             <!-- 残業申請状況 -->
-            <% if day.overtime_approval_status == "申請中" %>
-              <%= day.overtime_instructor %>へ残業<%= day.overtime_approval_status %>
-            <% end %>
+            <% case day.overtime_approval_status %>
+            <% when "申請中" %>
+              <span class="show_apply_now"><%= day.overtime_instructor %>へ残業申請中</span>
+            <% when "承認" %>
+              <span class="show_apply_ok"><%= day.overtime_instructor %>から残業申請:承認済</span>
+            <% when "否認" %>
+              <span class="show_apply_ng"><%= day.overtime_instructor %>から残業申請:否認</span>
+            <% else %>
+              <!-- 表示内容なし -->
+            <% end %>  
           </td>
         </tr>
       <% end %>
