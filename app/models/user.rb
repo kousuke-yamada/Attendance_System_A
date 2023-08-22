@@ -56,23 +56,33 @@ class User < ApplicationRecord
   def self.import(file)
     errors = ""
     ActiveRecord::Base.transaction do  # トランザクションを開始します。
-      CSV.foreach(file.path, headers: true).with_index(1) do |row,line|
+      begin
+        CSV.foreach(file.path,
+                    encoding: 'utf-8',
+                    headers: true,
+                    header_converters: :symbol).with_index(1) do |row,line|
           
-        # IDが見つかれば、レコードを呼び出し、見つからなければ新しく作成
-        user = User.find_by(id: row[:id]) || User.new
-        $line_no = line
+          # IDが見つかれば、レコードを呼び出し、見つからなければ新しく作成
+          user = User.find_by(name: row[:name]) || User.new
+          $line_no = line
 
-        # CSVからデータを取得し、設定する
-        user.attributes = row.to_hash.slice(*updatable_attributes)
-        if !user.save
-          errors = " 【エラー】csvファイル #{line}行目 : "
-          user.errors.full_messages.each do |msg|
-            errors += msg
-          end 
+          # CSVからデータを取得し、設定する
+          user.attributes = row.to_hash.slice(*updatable_attributes)
+          
+          if !user.save
+            errors = " 【エラー】csvファイル #{line}行目 : "
+            user.errors.full_messages.each do |msg|
+              errors += msg
+            end 
+          end
+
+          raise ActiveRecord::Rollback if errors.present?
         end
-
-        raise ActiveRecord::Rollback if errors.present?
-      end
+      
+      # 不正な CSV をパースしようとしたときに発生する例外（文字コードが不正）
+      rescue CSV::MalformedCSVError => e
+        errors = " 【エラー】文字コードエラー：csvファイルの#{e.lineno}行目の文字コードが不正です。"
+      end        
     end
     
     return errors.presence || nil
